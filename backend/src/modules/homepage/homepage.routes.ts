@@ -1,0 +1,13 @@
+import { Router } from "express";
+import * as ctrl from "./homepage.controller";
+import { authenticate, authorize } from "../../middlewares/auth";
+const router = Router();
+router.use(authenticate);
+router.use(authorize("SUPER_ADMIN", "ADMIN", "EDITOR_IN_CHIEF"));
+router.get("/", ctrl.list);
+router.get("/:id", ctrl.getById);
+router.post("/", ctrl.create);
+router.put("/:id", ctrl.update);
+router.delete("/:id", ctrl.remove);
+router.put("/reorder/bulk", ctrl.reorder);
+export default router;

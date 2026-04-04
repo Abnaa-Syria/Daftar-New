@@ -1,0 +1,429 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR_IN_CHIEF
+  EDITOR
+  AUTHOR
+  MEDIA_MANAGER
+}
+
+enum ArticleStatus {
+  DRAFT
+  IN_REVIEW
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum HomepageModuleType {
+  HERO_SLIDER
+  BREAKING_TICKER
+  FEATURED_WITH_THUMBNAILS
+  CARD_CAROUSEL
+  GRID_LAYOUT
+  SPLIT_LIST_FEATURED
+  INFOGRAPHIC_CAROUSEL
+  MOST_READ_CAROUSEL
+  SPECIAL_FILE_HIGHLIGHT
+  NEWSLETTER_CTA
+  TWO_ROW_GRID
+}
+
+enum MenuLocation {
+  HEADER
+  FOOTER
+  MOBILE
+}
+
+// ─── Users & Auth ────────────────────────────────────────────
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  password      String
+  name          String
+  role          Role      @default(EDITOR)
+  isActive      Boolean   @default(true)
+  lastLogin     DateTime?
+  refreshToken  String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+// ─── Sections ────────────────────────────────────────────────
+
+model Section {
+  id          Int       @id @default(autoincrement())
+  slug        String    @unique
+  name        String
+  description String?   @db.Text
+  color       String    @default("#1a2744")
+  icon        String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  articles Article[]
+  series   Series[]
+
+  @@map("sections")
+}
+
+// ─── Series ──────────────────────────────────────────────────
+
+model Series {
+  id          Int       @id @default(autoincrement())
+  slug        String    @unique
+  name        String
+  description String?   @db.Text
+  sectionId   Int?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  section  Section?  @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  articles Article[]
+
+  @@map("series")
+}
+
+// ─── Authors ─────────────────────────────────────────────────
+
+model Author {
+  id          Int       @id @default(autoincrement())
+  slug        String    @unique
+  name        String
+  role        String?
+  bio         String?   @db.Text
+  avatar      String?
+  email       String?
+  twitter     String?
+  facebook    String?
+  linkedin    String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  articles Article[]
+
+  @@map("authors")
+}
+
+// ─── Tags ────────────────────────────────────────────────────
+
+model Tag {
+  id          Int       @id @default(autoincrement())
+  slug        String    @unique
+  name        String
+  description String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  articles ArticleTag[]
+
+  @@map("tags")
+}
+
+// ─── Articles ────────────────────────────────────────────────
+
+model Article {
+  id              Int           @id @default(autoincrement())
+  slug            String        @unique
+  title           String
+  excerpt         String?       @db.Text
+  content         String?       @db.LongText
+  image           String?
+  sectionId       Int?
+  authorId        Int?
+  seriesId        Int?
+  status          ArticleStatus @default(DRAFT)
+  publishedAt     DateTime?
+  scheduledAt     DateTime?
+  readTime        Int           @default(0)
+  views           Int           @default(0)
+  isFeatured      Boolean       @default(false)
+  isBreaking      Boolean       @default(false)
+  isExclusive     Boolean       @default(false)
+  isAnalysis      Boolean       @default(false)
+  isPinnedHome    Boolean       @default(false)
+  isPinnedSection Boolean       @default(false)
+  sortOrder       Int           @default(0)
+  metaTitle       String?
+  metaDescription String?       @db.Text
+  ogImage         String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  section Section?       @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  author  Author?        @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  series  Series?        @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  tags    ArticleTag[]
+  images  ArticleImage[]
+
+  breakingItems     BreakingItem[]
+  specialFileLinks  SpecialFileArticle[]
+  homepageItems     HomepageModuleItem[]
+
+  @@index([sectionId])
+  @@index([authorId])
+  @@index([status, publishedAt])
+  @@map("articles")
+}
+
+model ArticleImage {
+  id        Int      @id @default(autoincrement())
+  articleId Int
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@map("article_images")
+}
+
+model ArticleTag {
+  articleId Int
+  tagId     Int
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@map("article_tags")
+}
+
+// ─── Breaking News ───────────────────────────────────────────
+
+model BreakingItem {
+  id          Int       @id @default(autoincrement())
+  title       String
+  articleId   Int?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  publishedAt DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  article Article? @relation(fields: [articleId], references: [id], onDelete: SetNull)
+
+  @@map("breaking_items")
+}
+
+// ─── Infographics ────────────────────────────────────────────
+
+model Infographic {
+  id          Int           @id @default(autoincrement())
+  slug        String        @unique
+  title       String
+  description String?       @db.Text
+  coverImage  String?
+  source      String?
+  status      ContentStatus @default(DRAFT)
+  publishedAt DateTime?
+  metaTitle       String?
+  metaDescription String?   @db.Text
+  ogImage         String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  images InfographicImage[]
+
+  @@map("infographics")
+}
+
+model InfographicImage {
+  id             Int      @id @default(autoincrement())
+  infographicId  Int
+  url            String
+  alt            String?
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  infographic Infographic @relation(fields: [infographicId], references: [id], onDelete: Cascade)
+
+  @@map("infographic_images")
+}
+
+// ─── Special Files ───────────────────────────────────────────
+
+model SpecialFile {
+  id          Int           @id @default(autoincrement())
+  slug        String        @unique
+  title       String
+  description String?       @db.Text
+  coverImage  String?
+  status      ContentStatus @default(DRAFT)
+  publishedAt DateTime?
+  metaTitle       String?
+  metaDescription String?   @db.Text
+  ogImage         String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  articles SpecialFileArticle[]
+
+  @@map("special_files")
+}
+
+model SpecialFileArticle {
+  specialFileId Int
+  articleId     Int
+  sortOrder     Int @default(0)
+
+  specialFile SpecialFile @relation(fields: [specialFileId], references: [id], onDelete: Cascade)
+  article     Article     @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@id([specialFileId, articleId])
+  @@map("special_file_articles")
+}
+
+// ─── Homepage Modules ────────────────────────────────────────
+
+model HomepageModule {
+  id          Int                @id @default(autoincrement())
+  type        HomepageModuleType
+  title       String?
+  sectionSlug String?
+  layout      String?
+  sortOrder   Int                @default(0)
+  isActive    Boolean            @default(true)
+  config      Json?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  items HomepageModuleItem[]
+
+  @@map("homepage_modules")
+}
+
+model HomepageModuleItem {
+  id         Int @id @default(autoincrement())
+  moduleId   Int
+  articleId  Int?
+  sortOrder  Int @default(0)
+
+  module  HomepageModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  article Article?       @relation(fields: [articleId], references: [id], onDelete: SetNull)
+
+  @@map("homepage_module_items")
+}
+
+// ─── Static Pages ────────────────────────────────────────────
+
+model StaticPage {
+  id              Int           @id @default(autoincrement())
+  slug            String        @unique
+  title           String
+  content         String?       @db.LongText
+  status          ContentStatus @default(DRAFT)
+  metaTitle       String?
+  metaDescription String?       @db.Text
+  ogImage         String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("static_pages")
+}
+
+// ─── Site Settings ───────────────────────────────────────────
+
+model SiteSetting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String @db.LongText
+  group String @default("general")
+
+  @@map("site_settings")
+}
+
+// ─── Menus ───────────────────────────────────────────────────
+
+model Menu {
+  id       Int          @id @default(autoincrement())
+  name     String
+  location MenuLocation
+  isActive Boolean      @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  items MenuItem[]
+
+  @@map("menus")
+}
+
+model MenuItem {
+  id        Int     @id @default(autoincrement())
+  menuId    Int
+  label     String
+  url       String
+  parentId  Int?
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+  icon      String?
+  target    String  @default("_self")
+
+  menu   Menu      @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  parent MenuItem? @relation("MenuItemChildren", fields: [parentId], references: [id], onDelete: SetNull)
+  children MenuItem[] @relation("MenuItemChildren")
+
+  @@map("menu_items")
+}
+
+// ─── Media ───────────────────────────────────────────────────
+
+model Media {
+  id        Int      @id @default(autoincrement())
+  filename  String
+  url       String
+  mimeType  String
+  size      Int
+  alt       String?
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("media")
+}
+
+// ─── Audit Log ───────────────────────────────────────────────
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  action    String
+  entity    String
+  entityId  Int?
+  details   Json?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+  @@map("audit_logs")
+}

@@ -1,0 +1,11 @@
+import { Router } from "express";
+import * as ctrl from "./settings.controller";
+import { authenticate, authorize } from "../../middlewares/auth";
+const router = Router();
+router.use(authenticate);
+router.use(authorize("SUPER_ADMIN", "ADMIN"));
+router.get("/", ctrl.getAll);
+router.post("/", ctrl.upsert);
+router.put("/bulk", ctrl.bulkUpsert);
+router.delete("/:key", ctrl.remove);
+export default router;
