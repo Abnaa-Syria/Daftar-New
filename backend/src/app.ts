@@ -66,6 +66,12 @@ app.use("/api/admin/menus", menusRoutes);
 app.use("/api/admin/media", mediaRoutes);
 
 // Error handler
+
+
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url} ${res.statusCode}`);
+  next();
+});
 app.use(errorHandler);
 
 export default app;
