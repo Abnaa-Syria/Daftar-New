@@ -27,6 +27,11 @@ import publicRoutes from "./modules/public/public.routes";
 
 const app = express();
 
+// So req.secure / protocol match the client when behind nginx, TLS terminator, etc. (needed for inferred media URLs).
+if (process.env.TRUST_PROXY === "1" || config.nodeEnv === "production") {
+  app.set("trust proxy", 1);
+}
+
 // Middleware
 app.use(
   cors({

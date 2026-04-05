@@ -1,8 +1,8 @@
 import { config } from "../config";
 
 /** Recursively prefix `/uploads/...` strings so the frontend can load files from the API host (Next.js image optimizer). */
-export function absolutizeUploadPaths<T>(payload: T): T {
-  const base = config.publicMediaBase;
+export function absolutizeUploadPaths<T>(payload: T, mediaBase?: string): T {
+  const base = mediaBase ?? config.publicMediaBase;
   if (!base || payload === null || payload === undefined) return payload;
 
   const rewrite = (v: unknown): unknown => {

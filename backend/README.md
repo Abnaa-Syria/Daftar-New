@@ -22,13 +22,9 @@ cp .env.example .env
 # عدّل DATABASE_URL و JWT_SECRET حسب إعداداتك
 ```
 
-**الإنتاج + Next.js (`next/image`):** إذا كان الموقع على نطاق (مثل `aldaftar.news`) والملفات المرفوعة تُخدم من الـ API (مثل `back.aldaftar.news`)، عيّن في `.env`:
+**الإنتاج + Next.js (`next/image`):** استجابات **`/api/public`** تعيد كتابة أي نص يبدأ بـ `/uploads/...` إلى رابط مطلق تلقائياً من `Host` / `X-Forwarded-Host` (مع `trust proxy` في الإنتاج)، أو يمكنك فرض العنوان بـ `PUBLIC_MEDIA_BASE_URL`. على الواجهة **لازم** تضيف في `next.config` ضمن `images.remotePatterns` نطاق الـ API (مثل `back.aldaftar.news`) والمسار `/uploads/**` وإلا يبقى `/_next/image` يعطي 400 حتى مع روابط مطلقة.
 
-`PUBLIC_MEDIA_BASE_URL=https://back.aldaftar.news`
-
-بهذا تُعاد كتابة مسارات مثل `/uploads/...` في استجابات **`/api/public` فقط** إلى روابط مطلقة. في مشروع الواجهة أضف في `next.config` ضمن `images.remotePatterns` نفس الـ host والمسار `/uploads/**` حتى لا يعيد محسّن الصور خطأ 400.
-
-**Production + Next.js (`next/image`):** If the site is on one host (e.g. `aldaftar.news`) and uploads are served from the API host (e.g. `back.aldaftar.news`), set `PUBLIC_MEDIA_BASE_URL` to that API origin (no trailing slash). Only **`/api/public`** responses get `/uploads/...` rewritten to absolute URLs. In the frontend `next.config`, add `images.remotePatterns` for that host and `/uploads/**` so the image optimizer is allowed to fetch them.
+**Production + Next.js (`next/image`):** **`/api/public`** JSON rewrites `/uploads/...` strings to absolute URLs using the incoming request host (or `PUBLIC_MEDIA_BASE_URL` if set). Deploy the updated backend, then add **`images.remotePatterns`** in the Next app for your API host and `/uploads/**` — without that, `/_next/image` still returns **400** even with absolute URLs.
 
 ### 3. تثبيت التبعيات
 ```bash
