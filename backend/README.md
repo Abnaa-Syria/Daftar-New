@@ -22,6 +22,14 @@ cp .env.example .env
 # عدّل DATABASE_URL و JWT_SECRET حسب إعداداتك
 ```
 
+**الإنتاج + Next.js (`next/image`):** إذا كان الموقع على نطاق (مثل `aldaftar.news`) والملفات المرفوعة تُخدم من الـ API (مثل `back.aldaftar.news`)، عيّن في `.env`:
+
+`PUBLIC_MEDIA_BASE_URL=https://back.aldaftar.news`
+
+بهذا تُعاد كتابة مسارات مثل `/uploads/...` في استجابات **`/api/public` فقط** إلى روابط مطلقة. في مشروع الواجهة أضف في `next.config` ضمن `images.remotePatterns` نفس الـ host والمسار `/uploads/**` حتى لا يعيد محسّن الصور خطأ 400.
+
+**Production + Next.js (`next/image`):** If the site is on one host (e.g. `aldaftar.news`) and uploads are served from the API host (e.g. `back.aldaftar.news`), set `PUBLIC_MEDIA_BASE_URL` to that API origin (no trailing slash). Only **`/api/public`** responses get `/uploads/...` rewritten to absolute URLs. In the frontend `next.config`, add `images.remotePatterns` for that host and `/uploads/**` so the image optimizer is allowed to fetch them.
+
 ### 3. تثبيت التبعيات
 ```bash
 npm install

@@ -17,4 +17,6 @@ export const config = {
     dir: process.env.UPLOAD_DIR || "uploads",
     maxFileSize: parseInt(process.env.MAX_FILE_SIZE || "5242880", 10),
   },
+  /** Base URL (no trailing slash) where `/uploads/...` is reachable, e.g. https://back.aldaftar.news — used to rewrite paths in /api/public JSON for Next.js <Image>. */
+  publicMediaBase: (process.env.PUBLIC_MEDIA_BASE_URL || "").replace(/\/+$/, "") || undefined,
 };

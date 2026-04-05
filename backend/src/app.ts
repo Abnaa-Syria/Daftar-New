@@ -3,6 +3,7 @@ import cors from "cors";
 import path from "path";
 import { config } from "./config";
 import { errorHandler } from "./middlewares/errorHandler";
+import { publicMediaUrlsResponse } from "./middlewares/publicMediaUrls";
 
 // Admin routes
 import authRoutes from "./modules/auth/auth.routes";
@@ -45,7 +46,8 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Public API
+// Public API — optional absolute upload URLs for split frontend/API hosting
+app.use("/api/public", publicMediaUrlsResponse);
 app.use("/api/public", publicRoutes);
 
 // Admin API
