@@ -7,7 +7,7 @@ export async function list(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function getById(req: Request, res: Response, next: NextFunction) {
-  try { ApiResponse.success(res, await service.getById(parseInt(req.params.id))); } catch (err) { next(err); }
+  try { ApiResponse.success(res, await service.getById(parseInt(req.params.id as string))); } catch (err) { next(err); }
 }
 
 export async function upload(req: Request, res: Response, next: NextFunction) {
@@ -28,9 +28,9 @@ export async function uploadMultiple(req: Request, res: Response, next: NextFunc
 }
 
 export async function update(req: Request, res: Response, next: NextFunction) {
-  try { ApiResponse.success(res, await service.update(parseInt(req.params.id), req.body)); } catch (err) { next(err); }
+  try { ApiResponse.success(res, await service.update(parseInt(req.params.id as string), req.body)); } catch (err) { next(err); }
 }
 
 export async function remove(req: Request, res: Response, next: NextFunction) {
-  try { await service.remove(parseInt(req.params.id)); ApiResponse.success(res, null, "تم الحذف"); } catch (err) { next(err); }
+  try { await service.remove(parseInt(req.params.id as string)); ApiResponse.success(res, null, "تم الحذف"); } catch (err) { next(err); }
 }

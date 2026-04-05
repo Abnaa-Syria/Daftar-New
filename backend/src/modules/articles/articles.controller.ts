@@ -11,7 +11,7 @@ export async function list(req: Request, res: Response, next: NextFunction) {
 
 export async function getById(req: Request, res: Response, next: NextFunction) {
   try {
-    const article = await articlesService.getById(parseInt(req.params.id));
+    const article = await articlesService.getById(parseInt(req.params.id as string));
     ApiResponse.success(res, article);
   } catch (err) { next(err); }
 }
@@ -25,14 +25,14 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const article = await articlesService.update(parseInt(req.params.id), req.body);
+    const article = await articlesService.update(parseInt(req.params.id as string), req.body);
     ApiResponse.success(res, article);
   } catch (err) { next(err); }
 }
 
 export async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    await articlesService.remove(parseInt(req.params.id));
+    await articlesService.remove(parseInt(req.params.id as string));
     ApiResponse.success(res, null, "تم حذف المقال بنجاح");
   } catch (err) { next(err); }
 }

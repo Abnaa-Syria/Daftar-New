@@ -12,5 +12,5 @@ export async function bulkUpsert(req: Request, res: Response, next: NextFunction
   try { await service.bulkUpsert(req.body.settings); ApiResponse.success(res, null, "تم تحديث الإعدادات"); } catch (err) { next(err); }
 }
 export async function remove(req: Request, res: Response, next: NextFunction) {
-  try { await service.remove(req.params.key); ApiResponse.success(res, null, "تم الحذف"); } catch (err) { next(err); }
+  try { await service.remove(req.params.key as string); ApiResponse.success(res, null, "تم الحذف"); } catch (err) { next(err); }
 }

@@ -18,10 +18,10 @@ export async function login(email: string, password: string) {
 
   const payload: JwtPayload = { userId: user.id, email: user.email, role: user.role };
   const accessToken = jwt.sign(payload, config.jwt.secret, {
-    expiresIn: config.jwt.expiresIn,
+    expiresIn: config.jwt.expiresIn as never,
   });
   const refreshToken = jwt.sign(payload, config.jwt.refreshSecret, {
-    expiresIn: config.jwt.refreshExpiresIn,
+    expiresIn: config.jwt.refreshExpiresIn as never,
   });
 
   await prisma.user.update({
@@ -55,10 +55,10 @@ export async function refreshTokens(token: string) {
 
     const payload: JwtPayload = { userId: user.id, email: user.email, role: user.role };
     const accessToken = jwt.sign(payload, config.jwt.secret, {
-      expiresIn: config.jwt.expiresIn,
+      expiresIn: config.jwt.expiresIn as never,
     });
     const newRefresh = jwt.sign(payload, config.jwt.refreshSecret, {
-      expiresIn: config.jwt.refreshExpiresIn,
+      expiresIn: config.jwt.refreshExpiresIn as never,
     });
 
     await prisma.user.update({ where: { id: user.id }, data: { refreshToken: newRefresh } });

@@ -37,11 +37,11 @@ export async function create(data: Record<string, unknown>) {
   const { items, ...rest } = data as { items?: Record<string, unknown>[];[key: string]: unknown };
   return prisma.menu.create({
     data: {
-      ...rest as never,
+      ...(rest as object),
       items: items?.length
         ? { create: items.map((item, i) => ({ ...item, sortOrder: i })) as never }
         : undefined,
-    },
+    } as never,
     include: includeItems,
   });
 }

@@ -37,11 +37,11 @@ export async function create(data: Record<string, unknown>) {
 
   return prisma.infographic.create({
     data: {
-      ...rest as never,
+      ...(rest as object),
       slug,
       publishedAt: rest.publishedAt ? new Date(rest.publishedAt as string) : undefined,
       images: imageUrls?.length ? { create: imageUrls.map((url, i) => ({ url, sortOrder: i })) } : undefined,
-    },
+    } as never,
     include: includeImages,
   });
 }

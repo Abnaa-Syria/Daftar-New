@@ -78,13 +78,13 @@ export async function create(data: Record<string, unknown>) {
 
   const article = await prisma.article.create({
     data: {
-      ...rest as never,
+      ...(rest as object),
       slug,
       publishedAt: rest.publishedAt ? new Date(rest.publishedAt as string) : undefined,
       scheduledAt: rest.scheduledAt ? new Date(rest.scheduledAt as string) : undefined,
       tags: tagIds?.length ? { create: tagIds.map((tagId) => ({ tagId })) } : undefined,
       images: galleryImages?.length ? { create: galleryImages.map((url, i) => ({ url, sortOrder: i })) } : undefined,
-    },
+    } as never,
     include: articleInclude,
   });
   return mapArticle(article);
@@ -106,10 +106,10 @@ export async function update(id: number, data: Record<string, unknown>) {
   }
 
   const updateData: Prisma.ArticleUpdateInput = {
-    ...rest as never,
+    ...(rest as object),
     publishedAt: rest.publishedAt ? new Date(rest.publishedAt as string) : undefined,
     scheduledAt: rest.scheduledAt ? new Date(rest.scheduledAt as string) : undefined,
-  };
+  } as Prisma.ArticleUpdateInput;
 
   if (tagIds !== undefined) {
     await prisma.articleTag.deleteMany({ where: { articleId: id } });
@@ -146,7 +146,7 @@ export async function getRelated(slug: string, limit = 4) {
   });
   if (!article) throw ApiError.notFound("المقال غير موجود");
 
-  const tagIds = article.tags.map((t) => t.tagId);
+  const tagIds = article.tags.map((t: { tagId: number }) => t.tagId);
   const related = await prisma.article.findMany({
     where: {
       id: { not: article.id },

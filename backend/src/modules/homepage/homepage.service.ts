@@ -29,9 +29,9 @@ export async function create(data: Record<string, unknown>) {
   const { articleIds, ...rest } = data as { articleIds?: number[];[key: string]: unknown };
   return prisma.homepageModule.create({
     data: {
-      ...rest as never,
+      ...(rest as object),
       items: articleIds?.length ? { create: articleIds.map((articleId, i) => ({ articleId, sortOrder: i })) } : undefined,
-    },
+    } as never,
     include: includeItems,
   });
 }

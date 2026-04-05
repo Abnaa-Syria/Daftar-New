@@ -11,7 +11,7 @@ export async function list(req: Request, res: Response, next: NextFunction) {
 
 export async function getById(req: Request, res: Response, next: NextFunction) {
   try {
-    const user = await usersService.getById(parseInt(req.params.id));
+    const user = await usersService.getById(parseInt(req.params.id as string));
     ApiResponse.success(res, user);
   } catch (err) { next(err); }
 }
@@ -25,14 +25,14 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
-    const user = await usersService.update(parseInt(req.params.id), req.body);
+    const user = await usersService.update(parseInt(req.params.id as string), req.body);
     ApiResponse.success(res, user, "تم تحديث المستخدم بنجاح");
   } catch (err) { next(err); }
 }
 
 export async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    await usersService.remove(parseInt(req.params.id));
+    await usersService.remove(parseInt(req.params.id as string));
     ApiResponse.success(res, null, "تم حذف المستخدم بنجاح");
   } catch (err) { next(err); }
 }

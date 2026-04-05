@@ -39,7 +39,7 @@ router.get("/sections", async (_req: Request, res: Response, next: NextFunction)
 
 router.get("/sections/:slug", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const section = await sectionsService.getBySlug(req.params.slug);
+    const section = await sectionsService.getBySlug(req.params.slug as string);
     const articles = await articlesService.list({
       sectionId: String(section.id),
       status: "PUBLISHED",
@@ -61,15 +61,15 @@ router.get("/articles", async (req: Request, res: Response, next: NextFunction) 
 
 router.get("/articles/:slug", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const article = await articlesService.getBySlug(req.params.slug);
-    await articlesService.incrementViews((article as { id: number }).id);
+    const article = await articlesService.getBySlug(req.params.slug as string);
+    await articlesService.incrementViews((article as unknown as { id: number }).id);
     ApiResponse.success(res, article);
   } catch (err) { next(err); }
 });
 
 router.get("/articles/:slug/related", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const related = await articlesService.getRelated(req.params.slug, parseInt(req.query.limit as string || "4"));
+    const related = await articlesService.getRelated(req.params.slug as string, parseInt(req.query.limit as string || "4"));
     ApiResponse.success(res, related);
   } catch (err) { next(err); }
 });
@@ -84,7 +84,7 @@ router.get("/most-read", async (req: Request, res: Response, next: NextFunction)
 // Series
 router.get("/series/:slug", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    ApiResponse.success(res, await seriesService.getBySlug(req.params.slug));
+    ApiResponse.success(res, await seriesService.getBySlug(req.params.slug as string));
   } catch (err) { next(err); }
 });
 
@@ -97,7 +97,7 @@ router.get("/infographics", async (_req: Request, res: Response, next: NextFunct
 
 router.get("/infographics/:slug", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    ApiResponse.success(res, await infographicsService.getBySlug(req.params.slug));
+    ApiResponse.success(res, await infographicsService.getBySlug(req.params.slug as string));
   } catch (err) { next(err); }
 });
 
@@ -110,7 +110,7 @@ router.get("/special-files", async (_req: Request, res: Response, next: NextFunc
 
 router.get("/special-files/:slug", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    ApiResponse.success(res, await specialFilesService.getBySlug(req.params.slug));
+    ApiResponse.success(res, await specialFilesService.getBySlug(req.params.slug as string));
   } catch (err) { next(err); }
 });
 
@@ -123,7 +123,7 @@ router.get("/authors", async (_req: Request, res: Response, next: NextFunction) 
 
 router.get("/authors/:slug", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const author = await authorsService.getBySlug(req.params.slug);
+    const author = await authorsService.getBySlug(req.params.slug as string);
     const articles = await articlesService.list({
       authorId: String(author.id),
       status: "PUBLISHED",
@@ -144,7 +144,7 @@ router.get("/tags", async (_req: Request, res: Response, next: NextFunction) => 
 
 router.get("/tags/:slug", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tag = await tagsService.getBySlug(req.params.slug);
+    const tag = await tagsService.getBySlug(req.params.slug as string);
     const articles = await articlesService.list({
       status: "PUBLISHED",
       sort: "publishedAt",
@@ -173,7 +173,7 @@ router.get("/search", async (req: Request, res: Response, next: NextFunction) =>
 // Static pages
 router.get("/pages/:slug", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    ApiResponse.success(res, await pagesService.getBySlug(req.params.slug));
+    ApiResponse.success(res, await pagesService.getBySlug(req.params.slug as string));
   } catch (err) { next(err); }
 });
 

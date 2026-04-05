@@ -46,11 +46,11 @@ export async function create(data: Record<string, unknown>) {
 
   return prisma.specialFile.create({
     data: {
-      ...rest as never,
+      ...(rest as object),
       slug,
       publishedAt: rest.publishedAt ? new Date(rest.publishedAt as string) : undefined,
       articles: articleIds?.length ? { create: articleIds.map((articleId, i) => ({ articleId, sortOrder: i })) } : undefined,
-    },
+    } as never,
     include: includeArticles,
   });
 }
